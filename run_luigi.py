@@ -1,4 +1,3 @@
-# Filename: run_luigi.py
 import luigi
 
 
@@ -9,11 +8,11 @@ class PrintNumbers(luigi.Task):
         return []
 
     def output(self):
-        return luigi.LocalTarget("numbers_up_to_{}.txt".format(self.n))
+        return luigi.LocalTarget("numbers_up_to_{}.txt")
 
     def run(self):
         with self.output().open('w') as f:
-            for i in range(1, self.n + 1):
+            for i in range(1, self.n+1):
                 f.write("{}\n".format(i))
 
 
@@ -24,7 +23,7 @@ class SquaredNumbers(luigi.Task):
         return [PrintNumbers(n=self.n)]
 
     def output(self):
-        return luigi.LocalTarget("squares_up_to_{}.txt".format(self.n))
+        return luigi.LocalTarget("squares_{}.txt")
 
     def run(self):
         with self.input()[0].open() as fin, self.output().open('w') as fout:
