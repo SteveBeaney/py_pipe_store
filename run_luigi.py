@@ -8,7 +8,7 @@ class PrintNumbers(luigi.Task):
         return []
 
     def output(self):
-        return luigi.LocalTarget("numbers_up_to_{}.txt")
+        return luigi.LocalTarget("numbers_up_to_{}.txt".format(self.n))
 
     def run(self):
         with self.output().open('w') as f:
@@ -17,13 +17,12 @@ class PrintNumbers(luigi.Task):
 
 
 class SquaredNumbers(luigi.Task):
-    n = luigi.IntParameter()
 
     def requires(self):
-        return [PrintNumbers(n=self.n)]
+        return [PrintNumbers(n=40)]
 
     def output(self):
-        return luigi.LocalTarget("squares_{}.txt")
+        return luigi.LocalTarget("squares_up_to_{}.txt".format(40))
 
     def run(self):
         with self.input()[0].open() as fin, self.output().open('w') as fout:
