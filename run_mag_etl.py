@@ -47,7 +47,6 @@ class GetInterMag(luigi.Task):
                     with open(mag_file,'w') as f:
                         f.write("missing\n")
                     subprocess.run(["gzip", mag_file])
-        # time.sleep(random.randint(0, 6))
 
     def get_mag_file(self, ftp, ftp_file, mag_file):
         with open(mag_file, 'wb') as fp:
@@ -95,6 +94,7 @@ class GetProcessedMag(luigi.Task):
         else:
             shutil.copyfile(mag_file, processed_file)
 
+
 class AllFiles(luigi.Task):
     st = luigi.DateParameter(default=datetime.date.today())
     obs = luigi.ListParameter()
@@ -104,16 +104,14 @@ class AllFiles(luigi.Task):
 
     def requires(self):
         obs = list(self.obs)
-        # b = datetime.date(2017,10,28)
         b = self.st
         e = datetime.date.today()
         for d in daterange( b, e ):
             for o in obs:
                 yield GetProcessedMag(d.year, d.month, d.day, o, self.magdir, self.xyzdir)
-                # yield GetInterMag(d.year, d.month, d.day, o, self.magdir)
 
     def complete(self):
-        return  self.task_complete
+        return self.task_complete
 
     def run(self):
         task_complete = True
