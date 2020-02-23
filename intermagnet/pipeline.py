@@ -115,6 +115,7 @@ class Load_site(luigi.Task):
                 j.append( {"dt": str(row['datetime']), "x": row['x'], "y": row['y'], "z": row['z']})
             t = text("insert into mag.data (observatory_id, obs_date, values) values ( "+str(id)+", '"+str(self.d)+"', '"+str(json.dumps(j))+"')")
             conn.execute(t)
+        os.remove(mag_file)
 
 
 class Load_mag_data(luigi.Task):
@@ -138,7 +139,7 @@ class Load_mag_data(luigi.Task):
         task_complete = True
 
 
-engine = sa.create_engine('postgresql://' + os.environ['MAGL'] + ':' + os.environ['MAGP'] + '@localhost:5432/mag')
+engine = sa.create_engine('postgresql://' + os.environ['MAGL'] + ':' + os.environ['MAGP'] + '@localhost:5432/mag')   #-------------------------------------------------
 conn = engine.connect()
 
 

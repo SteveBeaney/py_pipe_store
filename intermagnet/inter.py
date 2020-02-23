@@ -38,6 +38,7 @@ class Intermag_File():
             with gzip.open(filename, 'rt', encoding='utf-8', errors='ignore') as f:
                 st = f.read()
             self.d = pd.read_fwf(io.StringIO(st), skiprows=skips)
+
             if self.form=='HDZF':
                 self.HDZF_to_xyz()
             if self.form=='XYZF':
@@ -57,6 +58,15 @@ class Intermag_File():
     def form_xyz(self):
         self.d['datetime'] = pd.to_datetime(self.d['DATE'] + ' ' + self.d['TIME'])
         self.d['iaga'] = self.obs
+
+        indexNames = self.d[(self.d['h'] == 99999.00 ) |
+                            (self.d['d'] == 99999.00 ) |
+                            (self.d['z'] == 99999.00 ) |
+                            (self.d['f'] == 99999.00 ) |
+                            (self.d['x'] == 99999.00 ) |
+                            (self.d['y'] == 99999.00 )].index
+        self.d.drop(indexNames, inplace=True)
+
         self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'f'])
 
     def output_xyz(self, filename):
@@ -90,7 +100,7 @@ class Intermag_File():
         return self.date.date()
 
 
-# ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
-# ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ups20200102vmin.min.gz')
+#ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
+ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ded20190905vmin.min.gz')
 #
-# ifile.output_xyz('')
+ifile.output_xyz('')
