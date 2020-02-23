@@ -48,7 +48,7 @@ class Intermag_File():
     def XYZF_to_xyz(self):
         self.d.columns = ['DATE', 'TIME', 'DOY', 'x', 'y', 'z', 'f']
         self.d['h'] = np.sqrt(self.d['x'] * self.d['x'] + self.d['y'] * self.d['y'])
-        self.d['d'] = np.arctan(self.d['y'] / self.d['x']) * (180 / math.pi)
+        self.d['d'] = np.arctan2(self.d['y'] , self.d['x']) * (180 / math.pi)
         self.form_xyz()
 
     def HDZF_to_xyz(self):
@@ -70,7 +70,7 @@ class Intermag_File():
                             (self.d['y'] == 99999.00)].index
         self.d.drop(indexNames, inplace=True)
 
-        self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'h', 'd', 'f'])
+        self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'h', 'f', 'd'])
 
     def output_xyz(self, filename):
         print(self.d)
@@ -103,8 +103,9 @@ class Intermag_File():
         return self.date.date()
 
 
-ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
+#ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
+#ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ups20200102vmin.min.gz')
 
 #ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ded20190905vmin.min.gz')
 #
-ifile.output_xyz('')
+#ifile.output_xyz('')
