@@ -5,9 +5,10 @@ import math
 import gzip
 import io
 
+
 class Intermag_File():
 
-    def __init__(self, filename ):
+    def __init__(self, filename):
         self.d = pd.DataFrame()
         self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'f'])
         skips = 0
@@ -19,33 +20,35 @@ class Intermag_File():
         with gzip.open(filename, 'rt', encoding='utf-8', errors='ignore') as f:
             for i, line in enumerate(f):
                 if line.startswith(' IAGA CODE'):
-                    self.obs = line[10:len(line)-2].strip()
+                    self.obs = line[10:len(line) - 2].strip()
                 if line.startswith(' Station Name'):
-                    self.station_name = line[13:len(line)-2].strip()
+                    self.station_name = line[13:len(line) - 2].strip()
                 if line.startswith(' Source of Data'):
-                    self.source = line[15:len(line)-2].strip()
+                    self.source = line[15:len(line) - 2].strip()
                 if line.startswith(' Geodetic Latitude'):
-                    self.lat = float(line[18:len(line)-2].strip())
+                    self.lat = float(line[18:len(line) - 2].strip())
                 if line.startswith(' Geodetic Longitude'):
-                    self.long = float(line[19:len(line)-2].strip())
+                    self.long = float(line[19:len(line) - 2].strip())
                 if line.startswith(' Reported'):
-                    self.form = line[9:len(line)-2].strip()
+                    self.form = line[9:len(line) - 2].strip()
                 if line.startswith('DATE'):
                     skips = i;
                     self.date = datetime.datetime.strptime(next(f)[0:10], '%Y-%m-%d')
                     break
-        if skips > 0 and self.obs != '' :
+        if skips > 0 and self.obs != '':
             with gzip.open(filename, 'rt', encoding='utf-8', errors='ignore') as f:
                 st = f.read()
             self.d = pd.read_fwf(io.StringIO(st), skiprows=skips)
 
-            if self.form=='HDZF':
+            if self.form == 'HDZF':
                 self.HDZF_to_xyz()
-            if self.form=='XYZF':
+            if self.form == 'XYZF':
                 self.XYZF_to_xyz()
 
     def XYZF_to_xyz(self):
         self.d.columns = ['DATE', 'TIME', 'DOY', 'x', 'y', 'z', 'f']
+        self.d['h'] = np.sqrt(self.d['x'] * self.d['x'] + self.d['y'] * self.d['y'])
+        self.d['d'] = np.arctan(self.d['y'] / self.d['x']) * (180 / math.pi)
         self.form_xyz()
 
     def HDZF_to_xyz(self):
@@ -59,15 +62,15 @@ class Intermag_File():
         self.d['datetime'] = pd.to_datetime(self.d['DATE'] + ' ' + self.d['TIME'])
         self.d['iaga'] = self.obs
 
-        indexNames = self.d[(self.d['h'] == 99999.00 ) |
-                            (self.d['d'] == 99999.00 ) |
-                            (self.d['z'] == 99999.00 ) |
-                            (self.d['f'] == 99999.00 ) |
-                            (self.d['x'] == 99999.00 ) |
-                            (self.d['y'] == 99999.00 )].index
+        indexNames = self.d[(self.d['h'] == 99999.00) |
+                            (self.d['d'] == 99999.00) |
+                            (self.d['z'] == 99999.00) |
+                            (self.d['f'] == 99999.00) |
+                            (self.d['x'] == 99999.00) |
+                            (self.d['y'] == 99999.00)].index
         self.d.drop(indexNames, inplace=True)
 
-        self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'f'])
+        self.d = self.d.filter(items=['datetime', 'x', 'y', 'z', 'h', 'd', 'f'])
 
     def output_xyz(self, filename):
         print(self.d)
@@ -100,7 +103,8 @@ class Intermag_File():
         return self.date.date()
 
 
-#ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
-ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ded20190905vmin.min.gz')
+ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/val20200117vmin.min.gz')
+
+#ifile = Intermag_File('/home/steve/repos/py_pipe_store/testdata/ded20190905vmin.min.gz')
 #
 ifile.output_xyz('')
